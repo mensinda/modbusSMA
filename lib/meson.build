@@ -1,5 +1,7 @@
 modbusSMASrc = files([
-  'Logging.cpp'
+  'Enums.cpp',
+  'Logging.cpp',
+  'ModbusAPI.cpp'
 ])
 
 modbusSMALib = library(
