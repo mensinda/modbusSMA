@@ -18,5 +18,7 @@
 
 #define SPDLOG_FMT_EXTERNAL 1
 
+#include <cstdint>
+
 #mesondefine MODBUS_SMA_VERSION
 #mesondefine MODBUS_SMA_LOGGER_NAME

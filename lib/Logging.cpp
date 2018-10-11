@@ -25,7 +25,16 @@ using namespace std;
 using namespace spdlog;
 using namespace modbusSMA;
 
-log::LOGGER log::initialize(vector<sink_ptr> _sinks) {
+/*!
+ * \brief Initializes the logger for the ModbusSMA library
+ *
+ * If no sinks are specified, the default stdout_color_mt logger is used.
+ * Does nothing if the logger already exists.
+ *
+ * \param _sinks Sinks to add to the logger
+ * \returns the created logger
+ */
+log::LOGGER log::initialize(std::vector<spdlog::sink_ptr> _sinks) {
   auto lLogger = spdlog::get(MODBUS_SMA_LOGGER_NAME);
   if (lLogger) {
     lLogger->info("Logger '{}' was already initialized", MODBUS_SMA_LOGGER_NAME);
@@ -42,6 +51,11 @@ log::LOGGER log::initialize(vector<sink_ptr> _sinks) {
   return lLogger;
 }
 
+/*!
+ * \brief Returns the logger used in the modbusSMA library
+ *
+ * Default initializes the logger if it is not already initialized.
+ */
 log::LOGGER log::get() {
   auto lLogger = spdlog::get(MODBUS_SMA_LOGGER_NAME);
 

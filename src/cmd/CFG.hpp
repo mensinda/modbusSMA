@@ -1,4 +1,3 @@
-//! \file
 /*
  * Copyright (C) 2018 Daniel Mensinger
  *
@@ -19,14 +18,7 @@
 
 #include "mSMAConfig.hpp"
 
-#include <spdlog/spdlog.h>
-
-//! Namespace for logging related functions.
-namespace modbusSMA::log {
-
-typedef std::shared_ptr<spdlog::logger> LOGGER; //!< Typedef for the spdlog logger
-
-LOGGER initialize(std::vector<spdlog::sink_ptr> _sinks = {});
-LOGGER get();
-
-} // namespace modbusSMA::log
+struct CFG {
+  std::string ip   = "127.0.0.1";
+  uint32_t    port = 512;
+};
