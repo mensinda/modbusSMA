@@ -53,8 +53,11 @@ class MBConnectionBase {
   void operator=(MBConnectionBase const &) = delete;
 
   ErrorCode connect();
+  ErrorCode setSlaveID(int _id);
   void      disconnect();
   bool      isConnected() const { return mConnection != nullptr; } //!< Returns whether a valid conection exists.
+
+  std::vector<uint16_t> readRegisters(uint32_t _reg, uint32_t _num);
 
   inline modbus_t *getConnection() { return mConnection; } //!< Returns the raw connection. DO NOT close OR free it.
 

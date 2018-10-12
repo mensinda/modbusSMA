@@ -38,6 +38,7 @@ string enum2Str::toStr(ErrorCode _errocCode) {
     case ErrorCode::INVALID_MODBUS_CONTEXT: return "INVALID_MODBUS_CONTEXT";
     case ErrorCode::MODBUS_CONNECTION_FAILED: return "MODBUS_CONNECTION_FAILED";
     case ErrorCode::INITIALIZATION_FAILED: return "INITIALIZATION_FAILED";
+    case ErrorCode::ERROR: return "ERROR";
     default: return "<UNKNOWN>";
   }
 }
