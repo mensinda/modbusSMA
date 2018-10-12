@@ -33,8 +33,16 @@ enum class State {
 enum class ErrorCode {
   OK = 0,                   //!< The function was successfull.
   INVALID_STATE,            //!< The function can not be executed with the current sate of the object.
+  INVALID_MODBUS_CONTEXT,   //!< Creating the modbus context (IP, etc.) failed.
   MODBUS_CONNECTION_FAILED, //!< Failed to establishe the modbus connection.
   INITIALIZATION_FAILED,    //!< Failed to initialize the API.
+};
+
+//! The modbus connection type.
+enum class ConnectionType {
+  TCP_IP,    //!< Normal TCP IP.
+  TCP_IP_PI, //!< TCP IP protocol independant.
+  RTU,       //!< RTU connection.
 };
 
 //! Connvert enums to strings
@@ -42,6 +50,7 @@ namespace enum2Str {
 
 std::string toStr(State _state);
 std::string toStr(ErrorCode _errocCode);
+std::string toStr(ConnectionType _type);
 
 } // namespace enum2Str
 

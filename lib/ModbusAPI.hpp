@@ -19,9 +19,11 @@
 
 #include "mSMAConfig.hpp"
 
+#include <memory>
 #include <string>
 
 #include "Enums.hpp"
+#include "MBConnectionBase.hpp"
 
 //! The main namespace of this library.
 namespace modbusSMA {
@@ -58,26 +60,30 @@ namespace modbusSMA {
  */
 class ModbusAPI {
  private:
-  std::string vIP   = "127.0.0.1"; //!< Test.
-  uint32_t    vPort = 512;         //!< Even more tests.
+  std::unique_ptr<MBConnectionBase> mConn = nullptr;
 
-  State vState = State::CONFIGURE; //!< Bleh.
+  State mState = State::CONFIGURE;
 
  public:
-  ModbusAPI() = default;
+  ModbusAPI() = delete;
   ModbusAPI(std::string _ip, uint32_t _port);
+  ModbusAPI(std::string _node, std::string _service);
+  ModbusAPI(std::string _device, uint32_t _baud, char _parity, int _dataBit, int _stopBit);
   virtual ~ModbusAPI();
+
+  ModbusAPI(ModbusAPI const &) = delete;
+  void operator=(ModbusAPI const &) = delete;
 
   ErrorCode connect();
   ErrorCode initialize();
   ErrorCode setup();
   void      reset();
 
-  ErrorCode setConnectionTCP(std::string _ip, uint32_t _port);
+  ErrorCode setConnectionTCP_IP(std::string _ip, uint32_t _port);
+  ErrorCode setConnectionTCP_IP_PI(std::string _node, std::string _service);
+  ErrorCode setConnectionRTU(std::string _device, uint32_t _baud, char _parity, int _dataBit, int _stopBit);
 
-  inline std::string getIP() { return vIP; }       //!< Returns the IP address.
-  inline uint32_t    getPort() { return vPort; }   //!< Returns the TCP port.
-  inline State       getState() { return vState; } //!< Get the current state of the API.
+  inline State getState() { return mState; } //!< Get the current state of the API.
 };
 
 } // namespace modbusSMA
