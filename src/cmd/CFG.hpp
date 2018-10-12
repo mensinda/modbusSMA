@@ -19,6 +19,21 @@
 #include "mSMAConfig.hpp"
 
 struct CFG {
-  std::string ip   = "127.0.0.1";
-  uint32_t    port = 512;
+  struct TcpIP {
+    std::string ip   = "127.0.0.1";
+    uint32_t    port = 502;
+  } tcpIP;
+
+  struct TcpIP_PI {
+    std::string node    = "::1";
+    std::string service = "502";
+  } tcpIP_PI;
+
+  struct RTU {
+    std::string device  = "/dev/null";
+    uint32_t    baud    = 800;
+    char        parity  = 'N';
+    int         dataBit = 8;
+    int         stopBit = 1;
+  } rtu;
 };

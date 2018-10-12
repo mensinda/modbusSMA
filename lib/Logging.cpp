@@ -22,7 +22,6 @@
 #include <spdlog/spdlog.h>
 
 using namespace std;
-using namespace spdlog;
 using namespace modbusSMA;
 
 /*!
@@ -35,20 +34,20 @@ using namespace modbusSMA;
  * \returns the created logger
  */
 log::LOGGER log::initialize(std::vector<spdlog::sink_ptr> _sinks) {
-  auto lLogger = spdlog::get(MODBUS_SMA_LOGGER_NAME);
-  if (lLogger) {
-    lLogger->info("Logger '{}' was already initialized", MODBUS_SMA_LOGGER_NAME);
-    return lLogger;
+  auto logger = spdlog::get(MODBUS_SMA_LOGGER_NAME);
+  if (logger) {
+    logger->info("Logger '{}' was already initialized", MODBUS_SMA_LOGGER_NAME);
+    return logger;
   }
 
   if (!_sinks.empty()) {
-    lLogger = make_shared<logger>(MODBUS_SMA_LOGGER_NAME, begin(_sinks), end(_sinks));
-    register_logger(lLogger);
+    logger = make_shared<spdlog::logger>(MODBUS_SMA_LOGGER_NAME, begin(_sinks), end(_sinks));
+    register_logger(logger);
   } else {
-    lLogger = stdout_color_mt(MODBUS_SMA_LOGGER_NAME);
+    logger = spdlog::stdout_color_mt(MODBUS_SMA_LOGGER_NAME);
   }
 
-  return lLogger;
+  return logger;
 }
 
 /*!
@@ -57,9 +56,9 @@ log::LOGGER log::initialize(std::vector<spdlog::sink_ptr> _sinks) {
  * Default initializes the logger if it is not already initialized.
  */
 log::LOGGER log::get() {
-  auto lLogger = spdlog::get(MODBUS_SMA_LOGGER_NAME);
+  auto logger = spdlog::get(MODBUS_SMA_LOGGER_NAME);
 
-  if (!lLogger) { lLogger = initialize(); }
+  if (!logger) { logger = initialize(); }
 
-  return lLogger;
+  return logger;
 }

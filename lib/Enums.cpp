@@ -35,8 +35,19 @@ string enum2Str::toStr(ErrorCode _errocCode) {
   switch (_errocCode) {
     case ErrorCode::OK: return "OK";
     case ErrorCode::INVALID_STATE: return "INVALID_STATE";
+    case ErrorCode::INVALID_MODBUS_CONTEXT: return "INVALID_MODBUS_CONTEXT";
     case ErrorCode::MODBUS_CONNECTION_FAILED: return "MODBUS_CONNECTION_FAILED";
     case ErrorCode::INITIALIZATION_FAILED: return "INITIALIZATION_FAILED";
+    default: return "<UNKNOWN>";
+  }
+}
+
+//! Converts the ConnectionType enum to a std::string.
+string enum2Str::toStr(ConnectionType _type) {
+  switch (_type) {
+    case ConnectionType::TCP_IP: return "TCP_IP";
+    case ConnectionType::TCP_IP_PI: return "TCP_IP_PI";
+    case ConnectionType::RTU: return "RTU";
     default: return "<UNKNOWN>";
   }
 }

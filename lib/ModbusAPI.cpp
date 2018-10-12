@@ -19,19 +19,33 @@
 #include "ModbusAPI.hpp"
 
 #include "Logging.hpp"
+#include "MBConnectionIP.hpp"
+#include "MBConnectionIP_PI.hpp"
+#include "MBConnectionRTU.hpp"
 
 using namespace std;
 using namespace modbusSMA;
 
 /*!
- * \brief Initializes the ModbusAPI with a custom IP and port
- * \param _ip   The IP address to use
- * \param _port The Port to use
+ * \brief Initializes the ModbusAPI with a custom TCP IP and port
+ * \sa setConnectionTCP_IP
  */
-ModbusAPI::ModbusAPI(string _ip, uint32_t _port) {
-  vIP   = _ip;
-  vPort = _port;
+ModbusAPI::ModbusAPI(string _ip, uint32_t _port) { setConnectionTCP_IP(_ip, _port); }
+
+/*!
+ * \brief Initializes the ModbusAPI with a custom IP and port
+ * \sa setConnectionTCP_IP
+ */
+ModbusAPI::ModbusAPI(string _node, string _service) { setConnectionTCP_IP_PI(_node, _service); }
+
+/*!
+ * \brief Initializes the ModbusAPI with a RTU connectopm
+ * \sa setConnectionRTU
+ */
+ModbusAPI::ModbusAPI(string _device, uint32_t _baud, char _parity, int _dataBit, int _stopBit) {
+  setConnectionRTU(_device, _baud, _parity, _dataBit, _stopBit);
 }
+
 
 ModbusAPI::~ModbusAPI() { reset(); }
 
@@ -42,10 +56,11 @@ ModbusAPI::~ModbusAPI() { reset(); }
  * The configuration (IP, port) is NOT reset.
  */
 void ModbusAPI::reset() {
-  if (vState == State::CONNECTED || vState == State::INITIALIZED) {
-    //! \todo Kill the modbus connection
+  if (mState == State::CONNECTED || mState == State::INITIALIZED) {
+    mConn->disconnect();
+    mConn = nullptr;
   }
-  vState = State::CONFIGURE;
+  mState = State::CONFIGURE;
 }
 
 /*!
@@ -54,17 +69,23 @@ void ModbusAPI::reset() {
  * State change: CONFIGURE --> CONNECTED
  */
 ErrorCode ModbusAPI::connect() {
-  auto lLogger = log::get();
-  if (vState != State::CONFIGURE) {
-    lLogger->error("ModbusAPI: can not connect() -- invalid object state '{}'", enum2Str::toStr(vState));
-    vState = State::ERROR;
+  auto logger = log::get();
+  if (mState != State::CONFIGURE) {
+    logger->error("ModbusAPI: can not connect() -- invalid object state '{}'", enum2Str::toStr(mState));
+    mState = State::ERROR;
     return ErrorCode::INVALID_STATE;
   }
 
-  //! \todo Implement
+  auto res = mConn->connect();
+  if (res != ErrorCode::OK) {
+    logger->error("ModbusAPI: unable to connect: '{}'", enum2Str::toStr(res));
+    mState = State::ERROR;
+    mConn  = nullptr;
+    return res;
+  }
 
-  lLogger->info("ModbusAPI: connected");
-  vState = State::CONNECTED;
+  logger->info("ModbusAPI: connected");
+  mState = State::CONNECTED;
   return ErrorCode::OK;
 }
 
@@ -74,17 +95,17 @@ ErrorCode ModbusAPI::connect() {
  * State change: CONNECTED --> INITIALIZED
  */
 ErrorCode ModbusAPI::initialize() {
-  auto lLogger = log::get();
-  if (vState != State::CONNECTED) {
-    lLogger->error("ModbusAPI: can not initialize() -- invalid object state '{}'", enum2Str::toStr(vState));
-    vState = State::ERROR;
+  auto logger = log::get();
+  if (mState != State::CONNECTED) {
+    logger->error("ModbusAPI: can not initialize() -- invalid object state '{}'", enum2Str::toStr(mState));
+    mState = State::ERROR;
     return ErrorCode::INVALID_STATE;
   }
 
   //! \todo Implement
 
-  lLogger->info("ModbusAPI: initialized");
-  vState = State::INITIALIZED;
+  logger->info("ModbusAPI: initialized");
+  mState = State::INITIALIZED;
   return ErrorCode::OK;
 }
 
@@ -94,8 +115,8 @@ ErrorCode ModbusAPI::initialize() {
  * State change: CONFIGURE --> INITIALIZED
  */
 ErrorCode ModbusAPI::setup() {
-  ErrorCode lRes = connect();
-  if (lRes != ErrorCode::OK) { return lRes; }
+  ErrorCode res = connect();
+  if (res != ErrorCode::OK) { return res; }
 
   return initialize();
 }
@@ -110,15 +131,55 @@ ErrorCode ModbusAPI::setup() {
  *
  * \returns OK or INVALID_STATE
  */
-ErrorCode ModbusAPI::setConnectionTCP(std::string _ip, uint32_t _port) {
-  auto lLogger = log::get();
-  if (vState != State::CONFIGURE) {
-    lLogger->error("ModbusAPI: can not setConnectionTCP() -- invalid object state '{}'", enum2Str::toStr(vState));
+ErrorCode ModbusAPI::setConnectionTCP_IP(string _ip, uint32_t _port) {
+  if (mState != State::CONFIGURE) {
+    log::get()->error("ModbusAPI: setConnectionTCP_IP() -- invalid object state '{}'", enum2Str::toStr(mState));
     return ErrorCode::INVALID_STATE;
   }
 
-  vIP   = _ip;
-  vPort = _port;
+  mConn = make_unique<MBConnectionIP>(_ip, _port);
+  return ErrorCode::OK;
+}
 
+/*!
+ * \brief Sets the TCP IP protocol indemendant server connection details
+ *
+ * \note This function can only be called in the CONFIGURE state
+ *
+ * \param _node    The server node
+ * \param _service The service
+ *
+ * \returns OK or INVALID_STATE
+ */
+ErrorCode ModbusAPI::setConnectionTCP_IP_PI(string _node, string _service) {
+  if (mState != State::CONFIGURE) {
+    log::get()->error("ModbusAPI: setConnectionTCP_IP_PI() -- invalid object state '{}'", enum2Str::toStr(mState));
+    return ErrorCode::INVALID_STATE;
+  }
+
+  mConn = make_unique<MBConnectionIP_PI>(_node, _service);
+  return ErrorCode::OK;
+}
+
+/*!
+ * \brief Sets the TCP server connection details
+ *
+ * \note This function can only be called in the CONFIGURE state
+ *
+ * \param _device   The name of the serial port
+ * \param _baud     The baud rate of the communication
+ * \param _parity   Partity type: N = None; E = Even; O = Odd
+ * \param _dataBit  The number of bits of data, the allowed values are 5, 6, 7 and 8
+ * \param _stopBit  The bits of stop, the allowed values are 1 and 2
+ *
+ * \returns OK or INVALID_STATE
+ */
+ErrorCode ModbusAPI::setConnectionRTU(string _device, uint32_t _baud, char _parity, int _dataBit, int _stopBit) {
+  if (mState != State::CONFIGURE) {
+    log::get()->error("ModbusAPI: setConnectionRTU() -- invalid object state '{}'", enum2Str::toStr(mState));
+    return ErrorCode::INVALID_STATE;
+  }
+
+  mConn = make_unique<MBConnectionRTU>(_device, _baud, _parity, _dataBit, _stopBit);
   return ErrorCode::OK;
 }

@@ -1,6 +1,10 @@
 modbusSMASrc = files([
   'Enums.cpp',
   'Logging.cpp',
+  'MBConnectionBase.cpp',
+  'MBConnectionIP.cpp',
+  'MBConnectionIP_PI.cpp',
+  'MBConnectionRTU.cpp',
   'ModbusAPI.cpp'
 ])
 
