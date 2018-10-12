@@ -36,6 +36,7 @@ enum class ErrorCode {
   INVALID_MODBUS_CONTEXT,   //!< Creating the modbus context (IP, etc.) failed.
   MODBUS_CONNECTION_FAILED, //!< Failed to establishe the modbus connection.
   INITIALIZATION_FAILED,    //!< Failed to initialize the API.
+  ERROR,                    //!< Generic error.
 };
 
 //! The modbus connection type.

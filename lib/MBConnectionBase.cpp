@@ -58,3 +58,52 @@ void MBConnectionBase::disconnect() {
   modbus_free(mConnection);
   mConnection = nullptr;
 }
+
+/*!
+ * \brief read _num registers from the device
+ *
+ * The maximum number of registers is limited by MODBUS_MAX_REGISTER_COUNT
+ *
+ * \param _reg The starting register
+ * \param _num The number of registers to read
+ *
+ * \returns A vector of the result OR an empty vector on error
+ */
+vector<uint16_t> MBConnectionBase::readRegisters(uint32_t _reg, uint32_t _num) {
+  if (_num > MODBUS_MAX_REGISTER_COUNT) {
+    auto logger = log::get();
+    logger->error("MBConnectionBase: readRegisters(_reg = {}, _num = {}): ", _reg, _num);
+    logger->error("  -- Can not request {} registers. Max register count is {}", _num, MODBUS_MAX_REGISTER_COUNT);
+    return {};
+  }
+
+  vector<uint16_t> vecOut;
+  vecOut.resize(_num);
+
+  if (modbus_read_registers(mConnection, _reg, _num, vecOut.data()) < 0) {
+    auto logger = log::get();
+    logger->error("MBConnectionBase: readRegisters(_reg = {}, _num = {}): ", _reg, _num);
+    logger->error("  -- Request failed with '{}'", modbus_strerror(errno));
+    return {};
+  }
+
+  return vecOut;
+}
+
+/*!
+ * \brief Sets the slave/uinit ID of the modbus connection
+ *
+ * \returns ErrorCode::OK on success
+ *          ErrorCode::INVALID_STATE if not connected
+ *          ErrorCode::ERROR when setting the id failed
+ */
+ErrorCode MBConnectionBase::setSlaveID(int _id) {
+  if (!isConnected()) { return ErrorCode::INVALID_STATE; }
+
+  if (modbus_set_slave(mConnection, _id) != 0) {
+    log::get()->error("Failed to set the slave id to {}. Error: '{}'", _id, modbus_strerror(errno));
+    return ErrorCode::ERROR;
+  }
+
+  return ErrorCode::OK;
+}

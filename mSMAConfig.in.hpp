@@ -22,3 +22,4 @@
 
 #mesondefine MODBUS_SMA_VERSION
 #mesondefine MODBUS_SMA_LOGGER_NAME
+#mesondefine MODBUS_MAX_REGISTER_COUNT

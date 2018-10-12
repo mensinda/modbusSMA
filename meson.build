@@ -33,6 +33,7 @@ projectDeps = [modbusDep, sqlite3Dep, threadsDep, fmtLib]
 cfgData = configuration_data()
 cfgData.set_quoted('MODBUS_SMA_VERSION',     meson.project_version())
 cfgData.set_quoted('MODBUS_SMA_LOGGER_NAME', meson.project_name())
+cfgData.set('MODBUS_MAX_REGISTER_COUNT', get_option('max_register_count'))
 
 configure_file(
   configuration: cfgData,

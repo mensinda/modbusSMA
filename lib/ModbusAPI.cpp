@@ -56,7 +56,7 @@ ModbusAPI::~ModbusAPI() { reset(); }
  * The configuration (IP, port) is NOT reset.
  */
 void ModbusAPI::reset() {
-  if (mState == State::CONNECTED || mState == State::INITIALIZED) {
+  if (mConn) {
     mConn->disconnect();
     mConn = nullptr;
   }
@@ -102,7 +102,40 @@ ErrorCode ModbusAPI::initialize() {
     return ErrorCode::INVALID_STATE;
   }
 
-  //! \todo Implement
+  logger->debug("Requesting basic inverter information:");
+
+  // 1st: set slave ID to 1
+  ErrorCode result;
+  result = mConn->setSlaveID(1);
+
+  if (result != ErrorCode::OK) {
+    mState = State::ERROR;
+    return result;
+  }
+
+  // 2nd: request data
+  vector<uint16_t> rawData = mConn->readRegisters(42109, 4);
+
+  if (rawData.size() != 4) {
+    logger->error("ModbusAPI: Failed to initialize -- requesting slave/unit ID failed");
+    return ErrorCode::INITIALIZATION_FAILED;
+  }
+
+  uint32_t serialNumber = (rawData[0] << 16) + rawData[1];
+  uint16_t susyID       = rawData[2];
+  uint16_t unitID       = rawData[3];
+
+  logger->debug("  -- Physical serial number: {}", serialNumber);
+  logger->debug("  -- Physical SusyID:        {}", susyID);
+  logger->debug("  -- Unit / Slave ID:        {}", unitID);
+
+  // 3rd: set slave ID to unitID
+  result = mConn->setSlaveID(unitID);
+
+  if (result != ErrorCode::OK) {
+    mState = State::ERROR;
+    return result;
+  }
 
   logger->info("ModbusAPI: initialized");
   mState = State::INITIALIZED;
