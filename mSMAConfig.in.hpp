@@ -23,3 +23,6 @@
 #mesondefine MODBUS_SMA_VERSION
 #mesondefine MODBUS_SMA_LOGGER_NAME
 #mesondefine MODBUS_MAX_REGISTER_COUNT
+#mesondefine MODBUS_INSTALL_PREFIX
+#mesondefine MODBUS_INSTALL_DATA_DIR
+#mesondefine MODBUS_DEFAULT_DB
