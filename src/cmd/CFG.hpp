@@ -19,6 +19,8 @@
 #include "mSMAConfig.hpp"
 
 struct CFG {
+  std::string db = MODBUS_DEFAULT_DB;
+
   struct TcpIP {
     std::string ip   = "127.0.0.1";
     uint32_t    port = 502;
