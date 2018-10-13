@@ -24,38 +24,43 @@
 #include <vector>
 
 #include "Enums.hpp"
+#include "Register.hpp"
 
 namespace modbusSMA {
+
+namespace internal {
+
+//! SQL query helper class.
+//! \internal
+class SQL_Query final {
+ private:
+  sqlite3_stmt *mSTMT = nullptr;
+
+ public:
+  SQL_Query() = delete;
+  SQL_Query(sqlite3 *_db, std::string _query);
+  ~SQL_Query();
+
+  inline sqlite3_stmt *get() { return mSTMT; }                //!< Returns the compiled statement.
+  inline sqlite3_stmt *operator()() { return mSTMT; }         //!< Returns the compiled statement.
+  inline bool          isValid() { return mSTMT != nullptr; } //!< Returns whether the statement is valid or not.
+};
+
+} // namespace internal
 
 //! Reads the modbusSMA register definitions from a sqlite3 database.
 class DataBase {
  public:
-  //! Stores SQL queries
-  struct SQL_Query {
-    std::string   sql  = "";      //!< The SQL command to execute.
-    sqlite3_stmt *stmt = nullptr; //!< Pointer to the precompiled sqlite3 statement.
-  };
-
+  //! Information for one supported device.
   struct DevEnum {
-    int         id;
-    std::string table;
-    std::string name;
-  };
-
-  //! List of queries
-  enum class Query {
-    LIST_TABLES = 0,
-    ENUMS,
+    uint32_t    id;    //!< The id of the device
+    std::string table; //!< The name of the table where the registers are defined
+    std::string name;  //!< The name of the inverter.
   };
 
  private:
   std::string mPath = MODBUS_DEFAULT_DB;
   sqlite3 *   mDB   = nullptr;
-
-  std::vector<SQL_Query> mQueries = {{"SELECT `name` FROM `sqlite_master` WHERE `type`='table';"},
-                                     {"SELECT `id`, `table`, `name` FROM `DeviceENUM`;"}};
-
-  SQL_Query *getQuery(Query _q);
 
  public:
   DataBase() = default;
@@ -67,6 +72,7 @@ class DataBase {
 
   std::vector<std::string> getTableList();
   std::vector<DevEnum>     getDeviceEnums();
+  std::vector<Register>    getRegisters(std::string _table);
 
   bool isConnected() const { return mDB != nullptr; } //!< Returns whether the DB is loaded.
 

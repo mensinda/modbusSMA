@@ -6,7 +6,8 @@ modbusSMASrc = [
   'MBConnectionIP.cpp',
   'MBConnectionIP_PI.cpp',
   'MBConnectionRTU.cpp',
-  'ModbusAPI.cpp'
+  'ModbusAPI.cpp',
+  'Register.cpp',
 ]
 
 modbusSMAInc = []
