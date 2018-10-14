@@ -19,6 +19,7 @@
 
 #include "mSMAConfig.hpp"
 
+#include <map>
 #include <string>
 #include <vector>
 
@@ -40,6 +41,8 @@ class Register {
 
   std::vector<uint16_t> mData;
 
+  std::map<uint32_t, std::string> mEnumData;
+
  public:
   Register() = delete;
   Register(uint16_t _reg, std::string _desc, std::string _unit, DataType _type, DataFormat _format, DataAccess _access);
@@ -59,9 +62,16 @@ class Register {
   inline bool operator==(const Register &_b) const { return mReg == _b.mReg; } //!< Compares the 16bit register address.
   inline bool operator==(const uint16_t &_b) const { return mReg == _b; }      //!< Compares the 16bit register address.
 
-  inline std::vector<uint16_t> raw() const { return mData; } //!< Returns the raw data
+  inline std::vector<uint16_t>           raw() const { return mData; }       //!< Returns the raw data.
+  inline std::map<uint32_t, std::string> enums() const { return mEnumData; } //!< Returns all parsed enums.
+
+  std::string value();
+  uint64_t    valueUInt();
+  int64_t     valueInt();
+  double      valueDouble();
 
   bool setRaw(std::vector<uint16_t> _data);
+  void resetData();
 
   uint32_t size() const noexcept;
 };

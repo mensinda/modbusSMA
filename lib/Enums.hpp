@@ -51,11 +51,12 @@ enum class ConnectionType {
 //! SMA modbus register data types.
 enum class DataType {
   S16,   //!< A single word (16-bit).
-  S32,   //!<  A signed double word (32-bit).
-  STR32, //!<  32 byte data field, in UTF8 format.
-  U16,   //!<  A word (16-bit).
-  U32,   //!<  A double word (32-bit).
-  U64,   //!<  A quadruple word (64-bit).
+  S32,   //!< A signed double word (32-bit).
+  S64,   //!< A signed quadruple word (64-bit).
+  STR32, //!< 32 byte data field, in UTF8 format.
+  U16,   //!< A word (16-bit).
+  U32,   //!< A double word (32-bit).
+  U64,   //!< A quadruple word (64-bit).
 
   __UNKNOWN__, //!< Undefined.
 };

@@ -38,4 +38,10 @@ struct CFG {
     int         dataBit = 8;
     int         stopBit = 1;
   } rtu;
+
+  struct Print {
+    bool     csv = false;
+    uint16_t min = 0;
+    uint16_t max = UINT16_MAX;
+  } print;
 };

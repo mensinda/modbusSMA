@@ -70,7 +70,12 @@ int main(int argc, char *argv[]) {
   rtu->add_option("--dataBit", cfg.rtu.dataBit, "The number of bits of data, the allowed values: 5-8")->required();
   rtu->add_option("--stopBit", cfg.rtu.stopBit, "The bits of stop, the allowed values are 1 and 2")->required();
 
-  app.require_subcommand(1, 1);
+  CLI::App *print = app.add_subcommand("print", "Print all registers")->fallthrough()->ignore_case();
+  print->add_option("--min", cfg.print.min, "Minimum register address to print");
+  print->add_option("--max", cfg.print.min, "Maximum register address to print");
+  print->add_flag("-C,--csv", cfg.print.csv, "Whether to print results in CSV or not");
+
+  app.require_subcommand(1);
 
   CLI11_PARSE(app, argc, argv);
 

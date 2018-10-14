@@ -45,6 +45,7 @@ class MBConnectionIP_PI : public MBConnectionBase {
   std::string getService() const { return mService; } //!< Returns the service used.
 
   ConnectionType type() override { return ConnectionType::TCP_IP_PI; }
+  std::string    description() override;
 };
 
 } // namespace modbusSMA

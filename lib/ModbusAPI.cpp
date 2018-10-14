@@ -121,7 +121,7 @@ ErrorCode ModbusAPI::connect() {
     return res;
   }
 
-  logger->info("ModbusAPI: connected");
+  logger->info("ModbusAPI: connected to {}", mConn->description());
   mState = State::CONNECTED;
   return ErrorCode::OK;
 }

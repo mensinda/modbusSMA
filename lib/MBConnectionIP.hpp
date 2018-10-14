@@ -45,6 +45,7 @@ class MBConnectionIP : public MBConnectionBase {
   uint32_t    getPort() const { return mPort; } //!< Returns the Port used.
 
   ConnectionType type() override { return ConnectionType::TCP_IP; }
+  std::string    description() override;
 };
 
 } // namespace modbusSMA
