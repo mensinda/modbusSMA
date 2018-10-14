@@ -43,3 +43,5 @@ modbus_t *MBConnectionIP::createModbusContext() {
 
   return ctx;
 }
+
+string MBConnectionIP::description() { return fmt::format("TCP-IP: {}:{}", mIP, mPort); }

@@ -43,3 +43,5 @@ modbus_t *MBConnectionIP_PI::createModbusContext() {
 
   return ctx;
 }
+
+string MBConnectionIP_PI::description() { return fmt::format("TCP Node: '{}'; Service: '{}'", mNode, mService); }

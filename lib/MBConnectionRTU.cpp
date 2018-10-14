@@ -48,3 +48,8 @@ modbus_t *MBConnectionRTU::createModbusContext() {
 
   return lCTX;
 }
+
+string MBConnectionRTU::description() {
+  return fmt::format(
+      "RTU device: '{}', Baud: {}, Parity: {}, Data / Stop bit: {}/{}", mDevice, mBaud, mParity, mDataBit, mStopBit);
+}

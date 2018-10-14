@@ -84,6 +84,7 @@ string enum2Str::toStr(DataType _type) {
   switch (_type) {
     case DataType::S16: return "S16";
     case DataType::S32: return "S32";
+    case DataType::S64: return "S64";
     case DataType::STR32: return "STR32";
     case DataType::U16: return "U16";
     case DataType::U32: return "U32";
@@ -135,6 +136,7 @@ DataType enum2Str::typeFromStr(string _type) {
   switch (fnv1aHash(_type.c_str())) {
     case "S16"_h: return DataType::S16;
     case "S32"_h: return DataType::S32;
+    case "S64"_h: return DataType::S64;
     case "STR32"_h: return DataType::STR32;
     case "U16"_h: return DataType::U16;
     case "U32"_h: return DataType::U32;

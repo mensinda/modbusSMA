@@ -51,6 +51,7 @@ class MBConnectionRTU : public MBConnectionBase {
   int         getStopBit() const { return mStopBit; } //!< Returns the stop bit used.
 
   ConnectionType type() override { return ConnectionType::RTU; }
+  std::string    description() override;
 };
 
 } // namespace modbusSMA

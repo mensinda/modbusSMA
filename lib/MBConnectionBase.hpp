@@ -61,7 +61,8 @@ class MBConnectionBase {
 
   inline modbus_t *getConnection() { return mConnection; } //!< Returns the raw connection. DO NOT close OR free it.
 
-  virtual ConnectionType type() = 0; //!< Returns the modbus connection type
+  virtual ConnectionType type()        = 0; //!< Returns the modbus connection type.
+  virtual std::string    description() = 0; //!< Textual description of the connection.
 };
 
 
