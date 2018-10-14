@@ -7,7 +7,7 @@ project(
     'b_colorout=always',
     'b_ndebug=if-release'
   ],
-  version: '0.0.1',
+  version: '1.0.0',
   license: 'Apache 2'
 )
 
@@ -61,13 +61,14 @@ cfgData.set_quoted('SMA_MODBUS_INSTALL_DATA_DIR',   join_paths([cfgData.get_unqu
 cfgData.set_quoted('SMA_MODBUS_DEFAULT_DB',         join_paths([cfgData.get_unquoted('SMA_MODBUS_INSTALL_DATA_DIR'), 'SMA_Modbus.db']))
 cfgData.set10(     'SMA_MODBUS_USE_EXTERNAL_FMT',   get_option('use_external_fmt'))
 
-configure_file(
+cfgHead = configure_file(
   configuration: cfgData,
   input:         'mSMAConfig.in.hpp',
   output:        'mSMAConfig.hpp'
 )
 
 install_data('data/SMA_Modbus.db')
+install_headers(cfgHead, subdir: meson.project_name())
 
 subdir('lib')
 subdir('src/cmd')
