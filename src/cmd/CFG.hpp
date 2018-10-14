@@ -40,8 +40,8 @@ struct CFG {
   } rtu;
 
   struct Print {
-    bool     csv = false;
-    uint16_t min = 0;
-    uint16_t max = UINT16_MAX;
+    std::string csv = "registers.csv";
+    uint16_t    min = 0;
+    uint16_t    max = UINT16_MAX;
   } print;
 };

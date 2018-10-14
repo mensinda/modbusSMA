@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include <algorithm>
+#include <fstream>
 #include <iostream>
 
 #include "CFG.hpp"
@@ -73,9 +75,9 @@ int main(int argc, char *argv[]) {
   CLI::App *print = app.add_subcommand("print", "Print all registers")->fallthrough()->ignore_case();
   print->add_option("--min", cfg.print.min, "Minimum register address to print");
   print->add_option("--max", cfg.print.min, "Maximum register address to print");
-  print->add_flag("-C,--csv", cfg.print.csv, "Whether to print results in CSV or not");
+  print->add_option("-C,--csv", cfg.print.csv, "Where to save the CSV file");
 
-  app.require_subcommand(1);
+  app.require_subcommand();
 
   CLI11_PARSE(app, argc, argv);
 
@@ -105,6 +107,46 @@ int main(int argc, char *argv[]) {
   if (result != ErrorCode::OK) {
     logger->error("Client setup failed with '{}'", enum2Str::toStr(result));
     return 1;
+  }
+
+  if (*print) {
+    std::ofstream csvFile(cfg.print.csv);
+    if (!csvFile.is_open()) {
+      logger->error("Failed to oppen '{}' for writing", cfg.print.csv);
+      return 2;
+    }
+
+    csvFile << "register,description,value,unit,format,type,access" << endl;
+
+    auto             registerHandler = mapi.getRegisters();
+    vector<Register> registerList    = registerHandler->getRegisters();
+    auto             startIter       = lower_bound(begin(registerList), end(registerList), cfg.print.min);
+    auto             endIter         = upper_bound(begin(registerList), end(registerList), cfg.print.max);
+    vector<Register> toUpdate;
+    copy_if(startIter, endIter, std::back_inserter(toUpdate), [](const Register &i) { return i.canRead(); });
+
+    if (mapi.updateRegisters(toUpdate) != ErrorCode::OK) {
+      logger->error("Failed to fetch the registers");
+      return 1;
+    }
+
+    vector<Register> toPrint;
+    registerList = registerHandler->getRegisters();
+    startIter    = lower_bound(begin(registerList), end(registerList), cfg.print.min);
+    endIter      = upper_bound(begin(registerList), end(registerList), cfg.print.max);
+    copy_if(startIter, endIter, std::back_inserter(toPrint), [](const Register &i) { return i.canRead(); });
+
+    string line;
+    for (Register &i : toPrint) {
+      csvFile << fmt::format("{},\"{}\",{},{},{},{},{}\n",
+                             i.reg(),
+                             i.desc(),
+                             i.value(),
+                             i.unit(),
+                             enum2Str::toStr(i.format()),
+                             enum2Str::toStr(i.type()),
+                             enum2Str::toStr(i.access()));
+    }
   }
 
   return 0;

@@ -16,9 +16,10 @@
 
 #include "Register.hpp"
 
-#include <fmt/format.h>
 #include <regex>
 #include <sstream>
+
+#include "Logging.hpp"
 
 using namespace std;
 using namespace modbusSMA;
@@ -56,7 +57,6 @@ Register::Register(uint16_t    _reg,    //!< The starting register.
 
   vector<string> splitDesc = split(mDesc, '\n');
   if (splitDesc.size() > 1) {
-    mDesc = splitDesc[0];
     for (size_t i = 1; i < splitDesc.size(); ++i) {
       vector<string> currSplit = split(splitDesc[i], '=');
       if (currSplit.size() < 2) { continue; }
@@ -91,19 +91,20 @@ uint32_t Register::size() const noexcept {
   }
 }
 
-//! Reset all data to NaN.
-void Register::resetData() {
+//! Generate NaN values for the current data type.
+vector<uint16_t> Register::getNaN() {
   switch (mType) {
-    case DataType::S16: mData = {0x8000}; break;
-    case DataType::S32: mData = {0x8000, 0x0000}; break;
-    case DataType::S64: mData = {0x8000, 0x0000, 0x0000, 0x0000}; break;
-    case DataType::U16: mData = {0xFFFF}; break;
-    case DataType::U32: mData = {0xFFFF, 0xFFFF}; break;
-    case DataType::U64: mData = {0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF}; break;
-    case DataType::STR32: mData = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; break;
-    default: mData = {0x0000, 0x0000};
+    case DataType::S16: return {0x8000}; break;
+    case DataType::S32: return {0x8000, 0x0000}; break;
+    case DataType::S64: return {0x8000, 0x0000, 0x0000, 0x0000}; break;
+    case DataType::U16: return {0xFFFF}; break;
+    case DataType::U32: return {0xFFFF, 0xFFFF}; break;
+    case DataType::U64: return {0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF}; break;
+    case DataType::STR32: return {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; break;
+    default: return {0x0000, 0x0000};
   }
 }
+
 
 
 //! Sets the new raw data. Returns false if the size differs from the expected size.
@@ -119,10 +120,15 @@ string Register::value() {
   if (mType == DataType::STR32) {
     if (mData.size() != 16) { return "Conversion ERROR: Invalid Data size!"; }
     char data[33];
-    for (uint32_t i = 0; i < 32; ++i) { data[i] = raw[i]; }
+    for (uint32_t i = 0; i < 32; i += 2) {
+      data[i + 0] = raw[i + 1];
+      data[i + 1] = raw[i + 0];
+    }
     data[32] = '\0';
     return data;
   }
+
+  if (mData == getNaN()) { return "NaN"; }
 
   uint32_t numDec = UINT32_MAX;
 
@@ -130,7 +136,7 @@ string Register::value() {
     case DataFormat::FW: {
       if (mData.size() < 2) { return "Conversion ERROR: Invalid Data size!"; }
       string suffix;
-      switch ((uint)raw[3]) {
+      switch ((uint)raw[2]) {
         case 0: suffix = "N"; break;
         case 1: suffix = "E"; break;
         case 2: suffix = "A"; break;
@@ -139,7 +145,7 @@ string Register::value() {
         case 5: suffix = "S"; break;
         default: suffix = to_string((uint)raw[3]); break;
       }
-      return fmt::format("{}.{:0>2}.{:0>2}.{}", (uint)raw[0], (uint)raw[1], (uint)raw[2], suffix);
+      return fmt::format("{}.{:0>2}.{:0>2}.{}", (uint)raw[1], (uint)raw[0], (uint)raw[3], suffix);
     }
 
     case DataFormat::IP4:
@@ -176,14 +182,29 @@ string Register::value() {
         case DataType::S32:
         case DataType::S64:
           if (numDec > 0 && numDec < 8) {
-            return fmt::format(fmt::format("{{:.{}\\}}", numDec), (double)valueInt() / pow(10.0, numDec));
+            bool    wasNegative = false;
+            int64_t val         = valueInt();
+            if (val < 0) {
+              val *= -1;
+              wasNegative = true;
+            }
+            string valStr = fmt::format("{}", val);
+
+            while (valStr.size() < (numDec + 1)) { valStr.insert(0, "0"); }
+            valStr.insert(valStr.size() - numDec, ".");
+
+            if (wasNegative) { valStr.insert(0, "-"); }
+            return valStr;
           }
           return fmt::format("{}", valueInt());
         case DataType::U16:
         case DataType::U32:
         case DataType::U64:
           if (numDec > 0 && numDec < 8) {
-            return fmt::format(fmt::format("{{:.{}\\}}", numDec), (double)valueUInt() / pow(10.0, numDec));
+            string valStr = fmt::format("{}", valueUInt());
+            while (valStr.size() < (numDec + 1)) { valStr.insert(0, "0"); }
+            valStr.insert(valStr.size() - numDec, ".");
+            return valStr;
           }
           return fmt::format("{}", valueUInt());
         default: return "<UNKNOWN TYPE>";
@@ -202,10 +223,10 @@ int64_t Register::valueInt() {
     case DataType::S16:
     case DataType::U16: return (int16_t)mData[0];
     case DataType::S32:
-    case DataType::U32: return (int32_t)(((uint64_t)mData[0] << 16) + mData[1]);
+    case DataType::U32: return (int32_t)(((uint32_t)mData[0] << 16) + mData[1]);
     case DataType::S64:
     case DataType::U64:
-      return (int64_t)(((uint64_t)mData[0] << 48) + ((uint64_t)mData[0] << 32) + ((uint64_t)mData[0] << 16) + mData[0]);
+      return (int64_t)(((uint64_t)mData[0] << 48) + ((uint64_t)mData[0] << 32) + ((uint32_t)mData[0] << 16) + mData[0]);
     default: return 0;
   }
 }
