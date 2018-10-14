@@ -2,6 +2,8 @@
 
 C++ library for accessing the the modbus interface of SMA inverters.
 
+See https://mensinda.github.io/modbusSMA/ for documentation.
+
 # Features
 
  - Easy to use
