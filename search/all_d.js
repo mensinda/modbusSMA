@@ -1,0 +1,19 @@
+var searchData=
+[
+  ['raw',['raw',['../classmodbus_s_m_a_1_1_register.html#a67435e0e9f27c81bc58010d8c121f114',1,'modbusSMA::Register::raw()'],['../namespacemodbus_s_m_a.html#a1f84d1d53285936b4af7193121b34183a633d6abff0a3fc22404347728d195059',1,'modbusSMA::RAW()']]],
+  ['rawdata',['rawData',['../struct_reg_batch.html#a5e79a3f53a7b3d4c7e381af09e913f3f',1,'RegBatch']]],
+  ['readregisters',['readRegisters',['../classmodbus_s_m_a_1_1_m_b_connection_base.html#a5c40a97416179e65e977555e62ea743a',1,'modbusSMA::MBConnectionBase']]],
+  ['reg',['Reg',['../struct_reg_batch_1_1_reg.html',1,'RegBatch::Reg'],['../struct_reg_batch_1_1_reg.html#af0777f4b75beaa869e737bb98f9987e8',1,'RegBatch::Reg::reg()'],['../classmodbus_s_m_a_1_1_register.html#ac8eb6e5b7792fdf082b1cef40465e07a',1,'modbusSMA::Register::reg()']]],
+  ['regbatch',['RegBatch',['../struct_reg_batch.html',1,'']]],
+  ['register',['Register',['../classmodbus_s_m_a_1_1_register.html',1,'modbusSMA::Register'],['../classmodbus_s_m_a_1_1_register.html#a9eface33b64dd7a1c85bf1fbce586175',1,'modbusSMA::Register::Register()']]],
+  ['register_2ehpp',['Register.hpp',['../_register_8hpp.html',1,'']]],
+  ['registercontainer',['RegisterContainer',['../classmodbus_s_m_a_1_1_register_container.html',1,'modbusSMA']]],
+  ['registercontainer_2ehpp',['RegisterContainer.hpp',['../_register_container_8hpp.html',1,'']]],
+  ['regs',['regs',['../struct_reg_batch.html#a45a1a7408904c47a18d4f8c8736e4c07',1,'RegBatch']]],
+  ['reset',['reset',['../classmodbus_s_m_a_1_1_modbus_a_p_i.html#a5128f0c8cffd647d292493494df96999',1,'modbusSMA::ModbusAPI']]],
+  ['resetdata',['resetData',['../classmodbus_s_m_a_1_1_register.html#ad027d0f1b7fb3f792ed16bc03a3a158b',1,'modbusSMA::Register']]],
+  ['rev',['REV',['../namespacemodbus_s_m_a.html#a1f84d1d53285936b4af7193121b34183ad51e4632904a9c370000c19748a91d66',1,'modbusSMA']]],
+  ['ro',['RO',['../namespacemodbus_s_m_a.html#ad272d3c16bfd709b7db1d284000cb9fcaf5b15f58cabad73d1bf2de7bcb89db6c',1,'modbusSMA']]],
+  ['rtu',['RTU',['../namespacemodbus_s_m_a.html#adc2ba5c476fc175b7a9a6d677b1e5ce0a5b56c88313cc21a877f9099553ecbd02',1,'modbusSMA']]],
+  ['rw',['RW',['../namespacemodbus_s_m_a.html#ad272d3c16bfd709b7db1d284000cb9fca5c6dc3d436504b7a65191cafe28212ee',1,'modbusSMA']]]
+];
