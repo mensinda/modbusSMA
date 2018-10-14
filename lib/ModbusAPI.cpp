@@ -129,6 +129,9 @@ ErrorCode ModbusAPI::connect() {
 /*!
  * \brief Initializes the API
  *
+ * This function connects to the DataBase (if not already done) and initializes the API by querying basic
+ * information (uinit id, inverter type) from the modbus interface
+ *
  * State change: CONNECTED --> INITIALIZED | ERROR
  */
 ErrorCode ModbusAPI::initialize() {
@@ -247,6 +250,7 @@ struct RegBatch {
   struct Reg {
     uint16_t reg;    //!< 16-bit register address.
     uint16_t offset; //!< offset in the rawData vector.
+    uint16_t size;   //!< number of modbus registers used in the Register class.
   };
 
   uint16_t         size;    //!< Size of the batch in number of registers.
@@ -257,9 +261,12 @@ struct RegBatch {
 /*!
  * \brief Updates all registers stored in _regList
  *
- * Unsupported registers in _regList are ignored.
+ * Fethes the register values from the inverter and stores the values in the shared RegisterContainer. The updated
+ * register values can then examined by requesting the registers from the RegisterContainer.
  *
- * \note This function can only be called in the CONFIGURE state
+ * Unsupported registers (by the inverter) in _regList are ignored.
+ *
+ * \note This function can only be called in the INITIALIZED state
  *
  * State change: NONE
  *
@@ -296,13 +303,41 @@ ErrorCode ModbusAPI::updateRegisters(vector<Register> _regList, size_t *_numUpda
       }
     }
 
-    curr->regs.push_back({i.reg(), curr->size});
+    curr->regs.push_back({i.reg(), curr->size, (uint16_t)i.size()});
     curr->size += i.size();
   }
 
-  //! \todo finish this
+  vector<uint16_t> singleRegData = {};
+  uint32_t         counter       = 1;
+  for (auto &i : batches) {
+    logger->debug("Fetching batch {} of {} -- Start: {}; Size: {}", counter++, batches.size(), i.regs[0].reg, i.size);
+    i.rawData = mConn->readRegisters(i.regs[0].reg, i.size);
+
+    if (i.rawData.size() != i.size) {
+      logger->warn(
+          "ModbusAPI: updateRegisters() -- failed to fetch registers: Start = {}; Size = {}", i.regs[0].reg, i.size);
+      continue;
+    }
+
+    for (auto j : i.regs) {
+      singleRegData.resize(j.size);
+      for (uint16_t k = 0; k < j.size; ++k) { singleRegData[k] = i.rawData[j.offset + k]; }
+      mRegisters->updateRegister(j.reg, singleRegData);
+      if (_numUpdated) { *_numUpdated += 1; }
+    }
+  }
 
   return ErrorCode::OK;
+}
+
+//! Convinience wrapper for the other version of this function.
+ErrorCode ModbusAPI::updateRegisters(vector<uint16_t> _regList, size_t *_numUpdated) {
+  if (mState != State::INITIALIZED) {
+    log::get()->error("ModbusAPI: updateRegisters() -- invalid object state '{}'", enum2Str::toStr(mState));
+    return ErrorCode::INVALID_STATE;
+  }
+
+  return updateRegisters(mRegisters->getRegisters(_regList), _numUpdated);
 }
 
 

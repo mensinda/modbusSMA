@@ -57,11 +57,6 @@ class Register {
   inline bool canRead() const noexcept { return mAccess == DataAccess::RO || mAccess == DataAccess::RW; }  //!< Read?
   inline bool canWrite() const noexcept { return mAccess == DataAccess::RW || mAccess == DataAccess::WO; } //!< Write?
 
-  inline bool operator<(const Register &_b) const { return mReg < _b.mReg; }   //!< Compares the 16bit register address.
-  inline bool operator<(const uint16_t &_b) const { return mReg < _b; }        //!< Compares the 16bit register address.
-  inline bool operator==(const Register &_b) const { return mReg == _b.mReg; } //!< Compares the 16bit register address.
-  inline bool operator==(const uint16_t &_b) const { return mReg == _b; }      //!< Compares the 16bit register address.
-
   inline std::vector<uint16_t>           raw() const { return mData; }       //!< Returns the raw data.
   inline std::map<uint32_t, std::string> enums() const { return mEnumData; } //!< Returns all parsed enums.
 
@@ -70,10 +65,19 @@ class Register {
   int64_t     valueInt();
   double      valueDouble();
 
-  bool setRaw(std::vector<uint16_t> _data);
-  void resetData();
+  bool        setRaw(std::vector<uint16_t> _data);
+  inline void resetData() { mData = getNaN(); } //!< Reset all data to NaN.
+
+  std::vector<uint16_t> getNaN();
 
   uint32_t size() const noexcept;
 };
+
+inline bool operator<(const Register &a, const Register &b) { return a.reg() < b.reg(); }   //!< Compares Registers.
+inline bool operator<(const Register &a, const uint16_t &b) { return a.reg() < b; }         //!< Compares Registers.
+inline bool operator<(const uint16_t &a, const Register &b) { return a < b.reg(); }         //!< Compares Registers.
+inline bool operator==(const Register &a, const Register &b) { return a.reg() == b.reg(); } //!< Compares Registers.
+inline bool operator==(const Register &a, const uint16_t &b) { return a.reg() == b; }       //!< Compares Registers.
+inline bool operator==(const uint16_t &a, const Register &b) { return a == b.reg(); }       //!< Compares Registers.
 
 } // namespace modbusSMA

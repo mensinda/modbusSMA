@@ -30,13 +30,50 @@
 //! The main namespace of this library.
 namespace modbusSMA {
 
+/*!
+ * \mainpage ModbusSMA
+ *
+ * modbusSMA is a smal and easy to use library for accessing the modbus interface of SMA inverters.
+ *
+ * The following code shows a basic example:
+ *
+ * \code{.cpp}
+ * #include <modbusSMA/ModbusAPI.hpp>
+ * #include <vector>
+ *
+ * using namespace modbusSMA;
+ * using namespace std;
+ *
+ * int main() {
+ *   ModbusAPI mapi("127.0.0.1", 502); // Create the main API object
+ *
+ *   // Call further configuration functions here.
+ *
+ *   ErrorCode err = mapi.setup();        // Connect to the modbus interface with ModbusAPI::setup()
+ *   auto      reg = mapi.getRegisters(); // Get a pointer to the RegisterContainer where all registers are stored.
+ *
+ *   // Use the shared RegisterContainer pointer (reg) to get a list of supported registers.
+ *   vector<uint16_t> toFetch = {30051, 30053, 30529, 30535, 30538};
+ *
+ *   err = mapi.updateRegisters(toFetch); // Fetch the values of the registers and store them in the RegisterContainer
+ *
+ *   // The fetched register values can now be retrieved from the shared RegisterContainer
+ *   vector<Register> registersWithValues = reg->getRegisters(toFetch);
+ *
+ *   return 0;
+ * }
+ * \endcode
+ *
+ * \sa ModbusAPI for more information
+ */
 
 /*!
  * \brief Main ModbusSMA class
  *
- * This class is the main ModbusSMA interface.
+ * This class is the main ModbusSMA interface. The connection to the modbus interface is handled here.
  *
- * The state machine for this class:
+ * The following state machine illustrates the state changes of this class:
+ *
  * \dot
  * digraph ModbusAPI_State {
  *   rankdir=LR;
@@ -95,6 +132,7 @@ class ModbusAPI {
   ErrorCode setup();
   void      reset();
 
+  ErrorCode updateRegisters(std::vector<uint16_t> _regList, size_t *_numUpdated = nullptr);
   ErrorCode updateRegisters(std::vector<Register> _regList, size_t *_numUpdated = nullptr);
 
   ErrorCode setDataBase(std::shared_ptr<DataBase> _db);

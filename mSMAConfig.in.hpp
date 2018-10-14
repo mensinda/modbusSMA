@@ -16,7 +16,11 @@
 
 #pragma once
 
-#define SPDLOG_FMT_EXTERNAL 1
+#mesondefine SMA_MODBUS_USE_EXTERNAL_FMT
+
+#if SMA_MODBUS_USE_EXTERNAL_FMT
+#  define SPDLOG_FMT_EXTERNAL 1
+#endif
 
 #include <cstdint>
 
