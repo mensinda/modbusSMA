@@ -22,8 +22,10 @@
 #include <memory>
 #include <string>
 
+#include "DataBase.hpp"
 #include "Enums.hpp"
 #include "MBConnectionBase.hpp"
+#include "RegisterContainer.hpp"
 
 //! The main namespace of this library.
 namespace modbusSMA {
@@ -60,15 +62,29 @@ namespace modbusSMA {
  */
 class ModbusAPI {
  private:
-  std::unique_ptr<MBConnectionBase> mConn = nullptr;
+  std::unique_ptr<MBConnectionBase>  mConn      = nullptr;
+  std::shared_ptr<DataBase>          mDB        = nullptr;
+  std::shared_ptr<RegisterContainer> mRegisters = nullptr;
+
+  std::string mInverterType   = "";
+  uint32_t    mInverterTypeID = 0;
 
   State mState = State::CONFIGURE;
 
  public:
   ModbusAPI() = delete;
-  ModbusAPI(std::string _ip, uint32_t _port);
-  ModbusAPI(std::string _node, std::string _service);
-  ModbusAPI(std::string _device, uint32_t _baud, char _parity, int _dataBit, int _stopBit);
+  ModbusAPI(std::string _ip, uint32_t _port, std::shared_ptr<DataBase> _db = nullptr);
+  ModbusAPI(std::string _node, std::string _service, std::shared_ptr<DataBase> _db = nullptr);
+  ModbusAPI(std::string               _device,
+            uint32_t                  _baud,
+            char                      _parity,
+            int                       _dataBit,
+            int                       _stopBit,
+            std::shared_ptr<DataBase> _db = nullptr);
+
+  ModbusAPI(std::string _ip, uint32_t _port, std::string _dbPath);
+  ModbusAPI(std::string _node, std::string _service, std::string _dbPath);
+  ModbusAPI(std::string _device, uint32_t _baud, char _parity, int _dataBit, int _stopBit, std::string _dbPath);
   virtual ~ModbusAPI();
 
   ModbusAPI(ModbusAPI const &) = delete;
@@ -79,11 +95,21 @@ class ModbusAPI {
   ErrorCode setup();
   void      reset();
 
+  ErrorCode updateRegisters(std::vector<Register> _regList, size_t *_numUpdated = nullptr);
+
+  ErrorCode setDataBase(std::shared_ptr<DataBase> _db);
+  ErrorCode setDataBase(std::string _dbPath);
+
   ErrorCode setConnectionTCP_IP(std::string _ip, uint32_t _port);
   ErrorCode setConnectionTCP_IP_PI(std::string _node, std::string _service);
   ErrorCode setConnectionRTU(std::string _device, uint32_t _baud, char _parity, int _dataBit, int _stopBit);
 
-  inline State getState() { return mState; } //!< Get the current state of the API.
+  inline State                              getState() const { return mState; }         //!< Returns the current state.
+  inline std::shared_ptr<DataBase>          getDataBase() { return mDB; }               //!< Returns the used DataBase.
+  inline std::shared_ptr<RegisterContainer> getRegisters() const { return mRegisters; } //!< Returns the registers.
+
+  inline std::string inverterType() const { return mInverterType; }     //!< Returns the inverter type.
+  inline uint32_t    inverterTypeID() const { return mInverterTypeID; } //!< Returns the inverter type (ID).
 };
 
 } // namespace modbusSMA

@@ -54,10 +54,14 @@ class Register {
   inline bool canRead() const noexcept { return mAccess == DataAccess::RO || mAccess == DataAccess::RW; }  //!< Read?
   inline bool canWrite() const noexcept { return mAccess == DataAccess::RW || mAccess == DataAccess::WO; } //!< Write?
 
-  inline bool operator<(const Register &_b) { return mReg < _b.mReg; }   //!< Only compares the 16-bit register address.
-  inline bool operator<(const uint16_t &_b) { return mReg < _b; }        //!< Only compares the 16-bit register address.
-  inline bool operator==(const Register &_b) { return mReg == _b.mReg; } //!< Only compares the 16-bit register address.
-  inline bool operator==(const uint16_t &_b) { return mReg == _b; }      //!< Only compares the 16-bit register address.
+  inline bool operator<(const Register &_b) const { return mReg < _b.mReg; }   //!< Compares the 16bit register address.
+  inline bool operator<(const uint16_t &_b) const { return mReg < _b; }        //!< Compares the 16bit register address.
+  inline bool operator==(const Register &_b) const { return mReg == _b.mReg; } //!< Compares the 16bit register address.
+  inline bool operator==(const uint16_t &_b) const { return mReg == _b; }      //!< Compares the 16bit register address.
+
+  inline std::vector<uint16_t> raw() const { return mData; } //!< Returns the raw data
+
+  bool setRaw(std::vector<uint16_t> _data);
 
   uint32_t size() const noexcept;
 };

@@ -62,7 +62,7 @@ void MBConnectionBase::disconnect() {
 /*!
  * \brief read _num registers from the device
  *
- * The maximum number of registers is limited by MODBUS_MAX_REGISTER_COUNT
+ * The maximum number of registers is limited by SMA_MODBUS_MAX_REGISTER_COUNT
  *
  * \param _reg The starting register
  * \param _num The number of registers to read
@@ -70,10 +70,10 @@ void MBConnectionBase::disconnect() {
  * \returns A vector of the result OR an empty vector on error
  */
 vector<uint16_t> MBConnectionBase::readRegisters(uint32_t _reg, uint32_t _num) {
-  if (_num > MODBUS_MAX_REGISTER_COUNT) {
+  if (_num > SMA_MODBUS_MAX_REGISTER_COUNT) {
     auto logger = log::get();
     logger->error("MBConnectionBase: readRegisters(_reg = {}, _num = {}): ", _reg, _num);
-    logger->error("  -- Can not request {} registers. Max register count is {}", _num, MODBUS_MAX_REGISTER_COUNT);
+    logger->error("  -- Can not request {} registers. Max register count is {}", _num, SMA_MODBUS_MAX_REGISTER_COUNT);
     return {};
   }
 

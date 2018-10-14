@@ -59,14 +59,18 @@ class DataBase {
   };
 
  private:
-  std::string mPath = MODBUS_DEFAULT_DB;
+  std::string mPath = SMA_MODBUS_DEFAULT_DB;
   sqlite3 *   mDB   = nullptr;
 
  public:
-  DataBase() = default;
+  DataBase() = delete;
+  DataBase(std::string _path = SMA_MODBUS_DEFAULT_DB);
   virtual ~DataBase();
 
-  ErrorCode connect(std::string _path = MODBUS_DEFAULT_DB);
+  DataBase(DataBase const &) = delete;
+  void operator=(DataBase const &) = delete;
+
+  ErrorCode connect();
   bool      validate();
   void      disconnect();
 
@@ -75,9 +79,6 @@ class DataBase {
   std::vector<Register>    getRegisters(std::string _table);
 
   bool isConnected() const { return mDB != nullptr; } //!< Returns whether the DB is loaded.
-
-  DataBase(DataBase const &) = delete;
-  void operator=(DataBase const &) = delete;
 };
 
 } // namespace modbusSMA

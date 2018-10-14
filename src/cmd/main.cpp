@@ -28,16 +28,24 @@ using namespace modbusSMA;
 
 int main(int argc, char *argv[]) {
   auto      logger = log::get();
-  ModbusAPI mapi("127.0.0.1", 512); // Config will be overwritten later
-  DataBase  db;
   CFG       cfg;
   ErrorCode result;
+
+  /*   _____  _     _____               _   _                   */
+  /*  /  __ \| |   |_   _|             | | (_)                  */
+  /*  | /  \/| |     | |     ___  _ __ | |_ _  ___  _ __  ___   */
+  /*  | |    | |     | |    / _ \| '_ \| __| |/ _ \| '_ \/ __|  */
+  /*  | \__/\| |_____| |_  | (_) | |_) | |_| | (_) | | | \__ \  */
+  /*   \____/\_____/\___/   \___/| .__/ \__|_|\___/|_| |_|___/  */
+  /*                             | |                            */
+  /*                             |_|                            */
+
 
   CLI::App app{"modbusSMA CLI client"};
 
   app.add_flag("--version",
                [logger](size_t) -> void {
-                 cout << "Version " << MODBUS_SMA_VERSION << endl;
+                 cout << "Version " << SMA_MODBUS_SMA_VERSION << endl;
                  exit(0);
                },
                "Print the version and exit");
@@ -66,17 +74,20 @@ int main(int argc, char *argv[]) {
 
   CLI11_PARSE(app, argc, argv);
 
+  /*  ___  ___          _ _                      _ _            _     */
+  /*  |  \/  |         | | |                    | (_)          | |    */
+  /*  | .  . | ___   __| | |__  _   _ ___    ___| |_  ___ _ __ | |_   */
+  /*  | |\/| |/ _ \ / _` | '_ \| | | / __|  / __| | |/ _ \ '_ \| __|  */
+  /*  | |  | | (_) | (_| | |_) | |_| \__ \ | (__| | |  __/ | | | |_   */
+  /*  \_|  |_/\___/ \__,_|_.__/ \__,_|___/  \___|_|_|\___|_| |_|\__|  */
+  /*                                                                  */
+  /*                                                                  */
+
+
   if (lFlagQ->count() > 0 && lFlagQ->count() > lFlagV->count()) { logger->set_level(level::warn); }
   if (lFlagV->count() > 0 && lFlagV->count() > lFlagQ->count()) { logger->set_level(level::debug); }
 
-  logger->info("Loading the database: {}", cfg.db);
-  result = db.connect(cfg.db);
-
-  if (result != ErrorCode::OK) {
-    logger->error("Failed to load the register database: '{}'", enum2Str::toStr(result));
-    return 1;
-  }
-
+  ModbusAPI mapi("127.0.0.1", 512, cfg.db); // Config will be overwritten later
 
   logger->info("Starting the modbus CLI server");
 

@@ -49,12 +49,12 @@ endif
 #############################
 
 cfgData = configuration_data()
-cfgData.set_quoted('MODBUS_SMA_VERSION',        meson.project_version())
-cfgData.set_quoted('MODBUS_SMA_LOGGER_NAME',    meson.project_name())
-cfgData.set(       'MODBUS_MAX_REGISTER_COUNT', get_option('max_register_count'))
-cfgData.set_quoted('MODBUS_INSTALL_PREFIX',     get_option('prefix'))
-cfgData.set_quoted('MODBUS_INSTALL_DATA_DIR',   join_paths([cfgData.get_unquoted('MODBUS_INSTALL_PREFIX'),   get_option('datadir'), meson.project_name()]))
-cfgData.set_quoted('MODBUS_DEFAULT_DB',         join_paths([cfgData.get_unquoted('MODBUS_INSTALL_DATA_DIR'), 'SMA_Modbus.db']))
+cfgData.set_quoted('SMA_MODBUS_SMA_VERSION',        meson.project_version())
+cfgData.set_quoted('SMA_MODBUS_SMA_LOGGER_NAME',    meson.project_name())
+cfgData.set(       'SMA_MODBUS_MAX_REGISTER_COUNT', get_option('max_register_count'))
+cfgData.set_quoted('SMA_MODBUS_INSTALL_PREFIX',     get_option('prefix'))
+cfgData.set_quoted('SMA_MODBUS_INSTALL_DATA_DIR',   join_paths([cfgData.get_unquoted('SMA_MODBUS_INSTALL_PREFIX'),   get_option('datadir'), meson.project_name()]))
+cfgData.set_quoted('SMA_MODBUS_DEFAULT_DB',         join_paths([cfgData.get_unquoted('SMA_MODBUS_INSTALL_DATA_DIR'), 'SMA_Modbus.db']))
 
 configure_file(
   configuration: cfgData,

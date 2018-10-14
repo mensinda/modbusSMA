@@ -8,6 +8,7 @@ modbusSMASrc = [
   'MBConnectionRTU.cpp',
   'ModbusAPI.cpp',
   'Register.cpp',
+  'RegisterContainer.cpp',
 ]
 
 modbusSMAInc = []
