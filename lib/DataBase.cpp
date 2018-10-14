@@ -46,39 +46,35 @@ SQL_Query::~SQL_Query() {
   sqlite3_finalize(mSTMT);
 }
 
-
+DataBase::DataBase(std::string _path) : mPath(_path) {} //!< Constructor. Only sets the DB path.
 DataBase::~DataBase() { disconnect(); }
 
-/*!
- * \brief Connect to the databes
- * \param _path The full path to the database
- */
-ErrorCode DataBase::connect(std::string _path) {
-  auto logger    = log::get();
-  int  errorCode = SQLITE_OK;
-  mPath          = _path;
+//! Connect to the databes.
+ErrorCode DataBase::connect() {
+  auto     logger    = log::get();
+  int      errorCode = SQLITE_OK;
   fs::path filePath(mPath);
 
   if (!fs::exists(filePath)) {
-    logger->error("DataBase: connect(_path={}): _path does not exist", _path);
+    logger->error("DataBase::connect() [{}]: DB does not exist", mPath);
     return ErrorCode::FILE_NOT_FOUND;
   }
 
   if (!fs::is_regular_file(filePath)) {
-    logger->error("DataBase: connect(_path={}): _path is not a regular file", _path);
+    logger->error("DataBase::connect() [{}]: DB is not a regular file", mPath);
     return ErrorCode::FILE_NOT_FOUND;
   }
 
-  logger->debug("DataBase: connect(_path={}): Loading register DB", _path);
-  errorCode = sqlite3_open(_path.c_str(), &mDB);
+  logger->debug("DataBase::connect() [{}]: Loading register DB", mPath);
+  errorCode = sqlite3_open(mPath.c_str(), &mDB);
   if (errorCode != SQLITE_OK) {
-    logger->error("DataBase: connect(_path={}): unable to open the database", _path);
+    logger->error("DataBase::connect() [{}]: unable to open the database", mPath);
     logger->error("  -- Error: '{}'", sqlite3_errstr(errorCode));
     return ErrorCode::DATA_BASE_ERROR;
   }
 
   if (!validate()) {
-    logger->error("DataBase: connect(_path={}): validation failed", _path);
+    logger->error("DataBase::connect() [{}]: validation failed", mPath);
     disconnect();
     return ErrorCode::DATA_BASE_ERROR;
   }
@@ -254,7 +250,10 @@ vector<Register> DataBase::getRegisters(std::string _table) {
   int              errorCode;
   auto             logger = log::get();
 
-  SQL_Query query(mDB, fmt::format("SELECT `register`, `desc`, `unit`, `type`, `format`, `access` FROM `{}`;", _table));
+  SQL_Query query(
+      mDB,
+      fmt::format("SELECT `register`, `desc`, `unit`, `type`, `format`, `access` FROM `{}` ORDER BY `register` ASC;",
+                  _table));
   if (!query.isValid()) { return {}; }
 
   while (true) {

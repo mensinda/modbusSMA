@@ -41,3 +41,10 @@ uint32_t Register::size() const noexcept {
     default: return UINT32_MAX;
   }
 }
+
+//! Sets the new raw data. Returns false if the size differs from the expected size.
+bool Register::setRaw(std::vector<uint16_t> _data) {
+  if (_data.size() != size()) { return false; }
+  mData = _data;
+  return true;
+}

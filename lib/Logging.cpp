@@ -34,17 +34,17 @@ using namespace modbusSMA;
  * \returns the created logger
  */
 log::LOGGER log::initialize(std::vector<spdlog::sink_ptr> _sinks) {
-  auto logger = spdlog::get(MODBUS_SMA_LOGGER_NAME);
+  auto logger = spdlog::get(SMA_MODBUS_SMA_LOGGER_NAME);
   if (logger) {
-    logger->info("Logger '{}' was already initialized", MODBUS_SMA_LOGGER_NAME);
+    logger->info("Logger '{}' was already initialized", SMA_MODBUS_SMA_LOGGER_NAME);
     return logger;
   }
 
   if (!_sinks.empty()) {
-    logger = make_shared<spdlog::logger>(MODBUS_SMA_LOGGER_NAME, begin(_sinks), end(_sinks));
+    logger = make_shared<spdlog::logger>(SMA_MODBUS_SMA_LOGGER_NAME, begin(_sinks), end(_sinks));
     register_logger(logger);
   } else {
-    logger = spdlog::stdout_color_mt(MODBUS_SMA_LOGGER_NAME);
+    logger = spdlog::stdout_color_mt(SMA_MODBUS_SMA_LOGGER_NAME);
   }
 
   return logger;
@@ -56,7 +56,7 @@ log::LOGGER log::initialize(std::vector<spdlog::sink_ptr> _sinks) {
  * Default initializes the logger if it is not already initialized.
  */
 log::LOGGER log::get() {
-  auto logger = spdlog::get(MODBUS_SMA_LOGGER_NAME);
+  auto logger = spdlog::get(SMA_MODBUS_SMA_LOGGER_NAME);
 
   if (!logger) { logger = initialize(); }
 

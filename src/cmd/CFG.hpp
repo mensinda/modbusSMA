@@ -19,7 +19,7 @@
 #include "mSMAConfig.hpp"
 
 struct CFG {
-  std::string db = MODBUS_DEFAULT_DB;
+  std::string db = SMA_MODBUS_DEFAULT_DB;
 
   struct TcpIP {
     std::string ip   = "127.0.0.1";
